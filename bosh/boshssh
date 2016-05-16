@@ -60,7 +60,7 @@ while getopts "d:t:h:v:u:D" opt; do
   esac
 done
 
-temp_file=${TMPDIR}/${target_env}-${deployment_name}-${RANDOM}.yml
+temp_file=$(mktemp -d)/${target_env}-${deployment_name}-${RANDOM}.yml
 if [ ${is_dusts} == 'true' ]; then
 
   bosh target dusts
