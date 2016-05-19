@@ -68,14 +68,40 @@ while getopts "d:t:h:v:u:c:D" opt; do
 done
 temp_dir=$(mktemp -d)
 temp_file=${temp_dir}/${target_env}-${deployment_name}-${RANDOM}.yml
+
+cat > ${temp_dir}/rveritas.sh <<EOF
+#!/bin/bash
+
+set -e
+
+pushd /var/vcap/data/tmp
+  if [ ! -f ./veritas ]; then
+    wget https://github.com/pivotal-cf-experimental/veritas/releases/download/latest/veritas -O ./veritas 2>/dev/null
+    chmod +x ./veritas
+
+    echo "export PATH=\$PATH:\$PWD" > veritas.bash
+    echo "export DROPSONDE_ORIGIN=veritas" >> veritas.bash
+    echo "export DROPSONDE_DESTINATION=localhost:3457" >> veritas.bash
+    ./veritas autodetect >> veritas.bash
+    ./veritas completions >> veritas.bash
+  fi
+  source ./veritas.bash
+popd
+
+export BBS_ENDPOINT=https://bbs.service.cf.internal:8889; \
+export BBS_CERT_FILE=/var/vcap/jobs/rep/config/certs/bbs/client.crt; \
+export BBS_KEY_FILE=/var/vcap/jobs/rep/config/certs/bbs/client.key
+
+veritas \$@
+EOF
+
 if [ ${is_dusts} == 'true' ]; then
 
   bosh target ${target_env}
 
   bosh download manifest ${deployment_name} ${temp_file}
 
-  bosh -d ${temp_file} ssh --gateway_user ${user_name} --gateway_host ${host_name} --gateway_identity_file ~/workspace/deployments-runtime/diego-ci/keypair/id_rsa_bosh ${vm_name}
-  bosh -d ${temp_file} scp --gateway_user ${user_name} --gateway_host ${host_name} --gateway_identity_file ~/workspace/deployments-runtime/${target_env}/keypair/id_rsa_bosh ${vm_name}/0 --upload ./rveritas.sh /tmp
+  bosh -d ${temp_file} scp --gateway_user ${user_name} --gateway_host ${host_name} --gateway_identity_file ~/workspace/deployments-runtime/${target_env}/keypair/id_rsa_bosh ${vm_name}/0 --upload ${temp_dir}/rveritas.sh /tmp
   bosh -d ${temp_file} ssh --gateway_user ${user_name} --gateway_host ${host_name} --gateway_identity_file ~/workspace/deployments-runtime/${target_env}/keypair/id_rsa_bosh ${vm_name}/0 "bash /tmp/rveritas.sh ${veritas_command}"
 
 else
@@ -85,9 +111,9 @@ else
   bosh download manifest ${deployment_name} ${temp_file}
 
   # lets downlaod the certs we need
-  bosh -d ${temp_file} scp --gateway_user ${user_name} --gateway_host ${host_name}.${target_env}.cf-app.com --gateway_identity_file ~/workspace/deployments-runtime/${target_env}/keypair/id_rsa_bosh ${vm_name}/0 --upload ./rveritas.sh /tmp
+  bosh -d ${temp_file} scp --gateway_user ${user_name} --gateway_host ${host_name}.${target_env}.cf-app.com --gateway_identity_file ~/workspace/deployments-runtime/${target_env}/keypair/id_rsa_bosh ${vm_name}/0 --upload ${temp_dir}/rveritas.sh /tmp
   echo "command to run is [" + ${veritas_command} + "]"
-  bosh -d ${temp_file} ssh --gateway_user ${user_name} --gateway_host ${host_name}.${target_env}.cf-app.com --gateway_identity_file ~/workspace/deployments-runtime/${target_env}/keypair/id_rsa_bosh ${vm_name}/0 "bash /tmp/rveritas.sh '${veritas_command}'"
+  bosh -d ${temp_file} ssh --gateway_user ${user_name} --gateway_host ${host_name}.${target_env}.cf-app.com --gateway_identity_file ~/workspace/deployments-runtime/${target_env}/keypair/id_rsa_bosh ${vm_name}/0 "bash /tmp/rveritas.sh ${veritas_command}"
 fi
 
 rm -rf ${temp_dir}
