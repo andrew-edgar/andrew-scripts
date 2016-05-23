@@ -5,7 +5,7 @@ set -e
 deployment_name=cf-diego
 target_env=superlaser
 host_name=bosh
-vm_name=
+vm_name=cell_z1
 user_name=vcap
 is_dusts=false
 veritas_command=dump-store
