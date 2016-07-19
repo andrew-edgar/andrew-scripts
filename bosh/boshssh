@@ -67,7 +67,7 @@ if [ ${is_dusts} == 'true' ]; then
 
   bosh download manifest ${deployment_name} ${temp_file}
 
-  bosh -d ${temp_file} ssh --gateway_user ubuntu --gateway_host ${host_name}.${target_env}.diego-ci.cf-app.com --gateway_identity_file ~/workspace/deployments-runtime/diego-ci/keypair/id_rsa_bosh ${vm_name}
+  bosh -d ${temp_file} ssh --gateway_user ubuntu --gateway_host ${host_name}.${target_env}.diego-ci.cf-app.com --gateway_identity_file ~/workspace/deployments-runtime/diego-ci/keypair/id_rsa_bosh ${vm_name} --strict_host_key_checking no
 
 else
 
@@ -75,7 +75,7 @@ else
 
   bosh download manifest ${deployment_name} ${temp_file}
 
-  bosh -d ${temp_file} ssh --gateway_user ${user_name} --gateway_host ${host_name}.${target_env}.cf-app.com --gateway_identity_file ~/workspace/deployments-runtime/${target_env}/keypair/id_rsa_bosh ${vm_name}
+  bosh -d ${temp_file} ssh --gateway_user ${user_name} --gateway_host ${host_name}.${target_env}.cf-app.com --gateway_identity_file ~/workspace/deployments-runtime/${target_env}/keypair/id_rsa_bosh ${vm_name} --strict_host_key_checking no
 
 fi
 
