@@ -26,7 +26,7 @@ OPTIONAL ARGUMENTS:
   -d <deployment-name>   Name of the BOSH Deployment (default: cf-diego)
   -t <target-name>       Name of the BOSH Target env.  Must be in deployments-runtime and match a "target" in bosh target (default: superlaser)
   -h <host-prefix>       Prefix of bosh director hostname (default: bosh)
-  -v <vm-name>           Name of the VM to connect to (i.e. database_z1)
+  -v <vm-name>           Name of the VM to connect to (e.g. database_z1/0)
   -u <user-name>         Name of the user in BOSH director (default: vcap)
   -D                     DUSTs target (overrides -d, -t, -u with DUSTs specific info)
 EOF
