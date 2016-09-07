@@ -26,7 +26,7 @@ USAGE:
 
 OPTIONAL ARGUMENTS:
   -d <deployment-name>   Name of the BOSH Deployment (default: cf-diego)
-  -t <target-name>       Name of the BOSH Target env.  Must be in deployments-runtime and match a "target" in bosh target (default: superlaser)
+  -t <target-name>       Name of the BOSH Target env.  Must be in deployments-diego and match a "target" in bosh target (default: superlaser)
   -h <host-prefix>       Prefix of bosh director hostname (default: bosh)
   -v <vm-name>           Name of the VM to connect to (i.e. database_z1)
   -u <user-name>         Name of the user in BOSH director (default: vcap)
@@ -101,8 +101,8 @@ if [ ${is_dusts} == 'true' ]; then
 
   bosh download manifest ${deployment_name} ${temp_file}
 
-  bosh -d ${temp_file} scp --gateway_user ${user_name} --gateway_host ${host_name} --gateway_identity_file ~/workspace/deployments-runtime/${target_env}/keypair/id_rsa_bosh ${vm_name}/0 --upload ${temp_dir}/rveritas.sh /tmp
-  bosh -d ${temp_file} ssh --gateway_user ${user_name} --gateway_host ${host_name} --gateway_identity_file ~/workspace/deployments-runtime/${target_env}/keypair/id_rsa_bosh ${vm_name}/0 "bash /tmp/rveritas.sh ${veritas_command}"
+  bosh -d ${temp_file} scp --gateway_user ${user_name} --gateway_host ${host_name} --gateway_identity_file ~/workspace/deployments-diego/${target_env}/keypair/id_rsa_bosh ${vm_name}/0 --upload ${temp_dir}/rveritas.sh /tmp
+  bosh -d ${temp_file} ssh --gateway_user ${user_name} --gateway_host ${host_name} --gateway_identity_file ~/workspace/deployments-diego/${target_env}/keypair/id_rsa_bosh ${vm_name}/0 "bash /tmp/rveritas.sh ${veritas_command}"
 
 else
 
@@ -111,9 +111,9 @@ else
   bosh download manifest ${deployment_name} ${temp_file}
 
   # lets downlaod the certs we need
-  bosh -d ${temp_file} scp --gateway_user ${user_name} --gateway_host ${host_name}.${target_env}.cf-app.com --gateway_identity_file ~/workspace/deployments-runtime/${target_env}/keypair/id_rsa_bosh ${vm_name}/0 --upload ${temp_dir}/rveritas.sh /tmp
+  bosh -d ${temp_file} scp --gateway_user ${user_name} --gateway_host ${host_name}.${target_env}.cf-app.com --gateway_identity_file ~/workspace/deployments-diego/${target_env}/keypair/id_rsa_bosh ${vm_name}/0 --upload ${temp_dir}/rveritas.sh /tmp
   echo "command to run is [" + ${veritas_command} + "]"
-  bosh -d ${temp_file} ssh --gateway_user ${user_name} --gateway_host ${host_name}.${target_env}.cf-app.com --gateway_identity_file ~/workspace/deployments-runtime/${target_env}/keypair/id_rsa_bosh ${vm_name}/0 "bash /tmp/rveritas.sh ${veritas_command}"
+  bosh -d ${temp_file} ssh --gateway_user ${user_name} --gateway_host ${host_name}.${target_env}.cf-app.com --gateway_identity_file ~/workspace/deployments-diego/${target_env}/keypair/id_rsa_bosh ${vm_name}/0 "bash /tmp/rveritas.sh ${veritas_command}"
 fi
 
 rm -rf ${temp_dir}
