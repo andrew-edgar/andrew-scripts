@@ -1,5 +1,12 @@
 #!/bin/bash
 
-bosh target flintstone
-ip=`bosh vms | grep $1 | cut -d "|" -f 6 | xargs`
+ipcachefile=~/boshvms/flintstone.out
+
+if [ ! -f $ipcachefile ] || [ "$(( $(date +"%s") - $(stat -f "%m" $ipcachefile) ))" -gt "7200" ]; then
+  echo "File does not exist create it"
+  bosh target flintstone
+  bosh vms > ~/boshvms/flintstone.out
+fi
+
+ip=`cat ~/boshvms/flintstone.out | grep $1 | cut -d "|" -f 6 | xargs`
 ssh -t -2 root@119.81.160.169 -C "ssh vcap@$ip"
